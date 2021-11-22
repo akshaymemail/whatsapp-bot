@@ -12,10 +12,10 @@ app.use(cors());
 
 // CONSTANTS
 const PORT = process.env.PORT || 2000;
-let sessionConfig;
+let isAuth = false;
+
 const client = new Client({
-  args: ["--no-sandbox"],
-  session: sessionConfig
+  args: ["--no-sandbox"]
 });
 
 client.on("qr", (qr) => {
@@ -28,7 +28,7 @@ client.on("qr", (qr) => {
 client.on("authenticated", (session) => {
   fs.writeFile("session.json", JSON.stringify(session), (err) => {
     if (err) console.log(err);
-    sessionConfig = session;
+    isAuth = true;
     console.log("authenticated");
     console.log("session saved");
   });
@@ -40,7 +40,6 @@ client.on("ready", () => {
 
 client.on("auth_failure", () => {
   console.log("AUTH Failed !");
-  sessionConfig = null;
 });
 
 client.initialize();
@@ -51,17 +50,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/getqr", (req, res) => {
-  fs.readFile("session.json", (err, session) => {
-    if (err) console.log(err);
-
-    if (session) {
-      sessionConfig = JSON.parse(session);
-      res.status(200).send(`<h1>Already authenticated</h1>`);
-    } else {
-      fs.readFile("qrcode.js", (err, qrjs) => {
-        fs.readFile("recentqr.txt", (err, data) => {
-          if (err) console.log(err);
-          res.status(200).send(`<html>
+  if (isAuth) {
+    res.status(200).send(`<h1>Already authenticated</h1>`);
+  } else {
+    fs.readFile("qrcode.js", (err, qrjs) => {
+      fs.readFile("recentqr.txt", (err, data) => {
+        if (err) console.log(err);
+        res.status(200).send(`<html>
             <body>
             <script>${qrjs}</script>
             <div id="qrcode"></div>
@@ -70,10 +65,9 @@ app.get("/getqr", (req, res) => {
             </script>
             </body>
         </html>`);
-        });
       });
-    }
-  });
+    });
+  }
 });
 
 app.get("/logout", (req, res) => {
@@ -82,14 +76,15 @@ app.get("/logout", (req, res) => {
   } catch (err) {
     return res.status(200).send({ message: "there is no active session" });
   }
-  sessionConfig = null;
   res.status(200).send({ message: "Logged out" });
+  process.exit();
 });
 
 app.get("/status", (req, res) => {
   try {
     fs.readFile("session.json", (err, session) => {
-      if (err) console.log(err);
+      if (err) {
+      }
       if (session) {
         res.status(200).send({ message: "authenticated" });
       } else {
