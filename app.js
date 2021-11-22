@@ -16,24 +16,37 @@ let isAuth = false;
 
 const client = new Client({
   puppeteer: {
-    args: ["--no-sandbox"]
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--unhandled-rejections=strict"
+    ]
   }
 });
 
 client.on("qr", (qr) => {
-  fs.writeFileSync("recentqr.txt", qr, (err) => {
-    if (err) console.log(err);
-    console.log("new qr generated");
-  });
+  try {
+    fs.writeFile("recentqr.txt", qr, (err) => {
+      if (err) console.log(err);
+      console.log("new qr generated");
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 client.on("authenticated", (session) => {
-  fs.writeFile("session.json", JSON.stringify(session), (err) => {
-    if (err) console.log(err);
-    isAuth = true;
-    console.log("authenticated");
-    console.log("session saved");
-  });
+  try {
+    fs.writeFile("session.json", JSON.stringify(session), (err) => {
+      if (err) console.log(err);
+      isAuth = true;
+      console.log("authenticated");
+      console.log("session saved");
+    });
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 client.on("ready", () => {
@@ -55,20 +68,24 @@ app.get("/getqr", (req, res) => {
   if (isAuth) {
     res.status(200).send(`<h1>Already authenticated</h1>`);
   } else {
-    fs.readFile("qrcode.js", (err, qrjs) => {
-      fs.readFile("recentqr.txt", (err, data) => {
-        if (err) console.log(err);
-        res.status(200).send(`<html>
-            <body>
-            <script>${qrjs}</script>
-            <div id="qrcode"></div>
-            <script type="text/javascript">
-                new QRCode(document.getElementById("qrcode"), "${data}");
-            </script>
-            </body>
-        </html>`);
+    try {
+      fs.readFile("qrcode.js", (err, qrjs) => {
+        fs.readFile("recentqr.txt", (err, data) => {
+          if (err) console.log(err);
+          res.status(200).send(`<html>
+              <body>
+              <script>${qrjs}</script>
+              <div id="qrcode"></div>
+              <script type="text/javascript">
+                  new QRCode(document.getElementById("qrcode"), "${data}");
+              </script>
+              </body>
+          </html>`);
+        });
       });
-    });
+    } catch (error) {
+      console.log(error);
+    }
   }
 });
 
