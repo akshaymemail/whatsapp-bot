@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
 app.get("/getqr", (req, res) => {
   fs.readFile("session.json", (err, session) => {
     if (err) console.log(err);
-    console.log(session);
+
     if (session) {
       res.status(200).send(`<h1>Already authenticated</h1>`);
     } else {
@@ -67,6 +67,22 @@ app.get("/logout", (req, res) => {
     res.status(200).send({ message: "there is no active session" });
   }
   res.status(200).send({ message: "Logged out" });
+});
+
+app.get("/status", (req, res) => {
+  try {
+    fs.readFile("session.json", (err, session) => {
+      if (err) console.log(err);
+
+      if (session) {
+        res.status(200).send({ message: "authenticated" });
+      } else {
+        res.status(200).send({ message: "disconnected" });
+      }
+    });
+  } catch (ENOENT) {
+    res.status(200).send({ message: "there is no active session" });
+  }
 });
 
 // SPINNING THE SERVER
