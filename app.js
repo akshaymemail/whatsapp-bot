@@ -1,4 +1,4 @@
-import express from "express";
+import express, { json } from "express";
 import cors from "cors";
 import { Client } from "whatsapp-web.js";
 import fs from "fs";
@@ -82,6 +82,21 @@ app.get("/getqr", (req, res) => {
               </body>
           </html>`);
         });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+});
+
+app.get("/get_code", (req, res) => {
+  if (isAuth) {
+    res.status(200).send(`<h1>Already authenticated</h1>`);
+  } else {
+    try {
+      fs.readFile("recentqr.txt", (err, data) => {
+        if (err) console.log(err);
+        res.status(200).json({ qr: data.toString() });
       });
     } catch (error) {
       console.log(error);
