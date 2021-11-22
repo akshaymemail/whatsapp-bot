@@ -37,16 +37,15 @@ client.on("qr", (qr) => {
 });
 
 client.on("authenticated", (session) => {
-  try {
-    fs.writeFile("session.json", JSON.stringify(session), (err) => {
-      if (err) console.log(err);
+  fs.writeFile("session.json", JSON.stringify(session), (err) => {
+    if (err) {
+      console.log(err);
+    } else {
       isAuth = true;
       console.log("authenticated");
       console.log("session saved");
-    });
-  } catch (error) {
-    console.log(error);
-  }
+    }
+  });
 });
 
 client.on("ready", () => {
@@ -110,19 +109,21 @@ app.get("/logout", (req, res) => {
   } catch (err) {
     return res.status(200).send({ message: "there is no active session" });
   }
+  isAuth = false;
+  client.logout();
   res.status(200).send({ message: "Logged out" });
-  process.exit();
 });
 
 app.get("/status", (req, res) => {
   try {
     fs.readFile("session.json", (err, session) => {
       if (err) {
+        console.log(err);
       }
       if (session) {
         res.status(200).json({ success: true, message: "authenticated" });
       } else {
-        res.status(200).json({ success: false, message: "disconnected" });
+        res.status(401).json({ success: false, message: "disconnected" });
       }
     });
   } catch (ENOENT) {
