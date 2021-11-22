@@ -120,9 +120,9 @@ app.get("/status", (req, res) => {
       if (err) {
       }
       if (session) {
-        res.status(200).send({ message: "authenticated" });
+        res.status(200).send({ success: true, message: "authenticated" });
       } else {
-        res.status(200).send({ message: "disconnected" });
+        res.status(200).send({ success: false, message: "disconnected" });
       }
     });
   } catch (ENOENT) {
