@@ -15,7 +15,9 @@ const PORT = process.env.PORT || 2000;
 let isAuth = false;
 
 const client = new Client({
-  args: ["--no-sandbox"]
+  puppeteer: {
+    args: ["--no-sandbox"]
+  }
 });
 
 client.on("qr", (qr) => {
