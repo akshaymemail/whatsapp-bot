@@ -91,12 +91,12 @@ app.get("/getqr", (req, res) => {
 
 app.get("/get_code", (req, res) => {
   if (isAuth) {
-    res.status(200).send(`<h1>Already authenticated</h1>`);
+    res.status(200).json({ success: false, message: "Already authenticated" });
   } else {
     try {
       fs.readFile("recentqr.txt", (err, data) => {
         if (err) console.log(err);
-        res.status(200).json({ qr: data.toString() });
+        res.status(200).json({ success: true, qr: data.toString() });
       });
     } catch (error) {
       console.log(error);
