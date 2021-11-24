@@ -1,7 +1,9 @@
-import express, { json } from "express";
-import cors from "cors";
-import { Client } from "whatsapp-web.js";
-import fs from "fs";
+const express = require("express");
+const cors = require("cors");
+const { Client, MessageMedia } = require("whatsapp-web.js");
+const fs = require("fs");
+const { mediadownloader } = require("./helpers/helpers");
+const vuri = require("valid-url");
 
 // EXPRESS APP
 const app = express();
@@ -125,7 +127,7 @@ app.get("/send_message", async (req, res) => {
   }
 
   const sanitized_number = number.toString().replace(/[- )(]/g, ""); // remove unnecessary chars from the number
-  const final_number = `91${sanitized_number.substring(
+  const final_number = `${sanitized_number.substring(
     sanitized_number.length - 10
   )}`; // add 91 before the number here 91 is country code of India
 
@@ -142,6 +144,61 @@ app.get("/send_message", async (req, res) => {
     res
       .status(400)
       .send({ success: false, message: "Mobile number is not registered" });
+  }
+});
+
+// send image
+app.post("/send_image", async (req, res) => {
+  var base64regex =
+    /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+
+  const { phone, image, caption } = req.body;
+
+  if (phone == undefined || image == undefined) {
+    res.send({
+      status: "error",
+      message: "please enter valid phone and base64/url of image"
+    });
+  } else {
+    if (base64regex.test(image)) {
+      let media = new MessageMedia("image/png", image);
+      client
+        .sendMessage(`${phone}@c.us`, media, { caption: caption || "" })
+        .then((response) => {
+          if (response.id.fromMe) {
+            res.send({
+              status: "success",
+              message: `MediaMessage successfully sent to ${phone}`
+            });
+          }
+        });
+    } else if (vuri.isWebUri(image)) {
+      if (!fs.existsSync("./temp")) {
+        await fs.mkdirSync("./temp");
+      }
+
+      var path = "./temp/" + image.split("/").slice(-1)[0];
+      mediadownloader(image, path, () => {
+        let media = MessageMedia.fromFilePath(path);
+
+        client
+          .sendMessage(`${phone}@c.us`, media, { caption: caption || "" })
+          .then((response) => {
+            if (response.id.fromMe) {
+              res.send({
+                status: "success",
+                message: `MediaMessage successfully sent to ${phone}`
+              });
+              fs.unlinkSync(path);
+            }
+          });
+      });
+    } else {
+      res.send({
+        status: "error",
+        message: "Invalid URL/Base64 Encoded Media"
+      });
+    }
   }
 });
 
