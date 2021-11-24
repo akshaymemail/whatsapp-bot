@@ -37,15 +37,8 @@ client.on("qr", (qr) => {
 });
 
 client.on("authenticated", (session) => {
-  fs.writeFile("session.json", JSON.stringify(session), (err) => {
-    if (err) {
-      console.log(err);
-    } else {
-      isAuth = true;
-      console.log("authenticated");
-      console.log("session saved");
-    }
-  });
+  console.log("authenticated");
+  isAuth = true;
 });
 
 client.on("ready", () => {
@@ -104,36 +97,26 @@ app.get("/get_code", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  try {
-    fs.unlinkSync("session.json");
-  } catch (err) {
-    return res.status(200).send({ message: "there is no active session" });
+  if (isAuth) {
+    client.logout();
+    isAuth = false;
+    res.status(200).json({ success: true, message: "Logged out" });
+  } else {
+    res.status(200).send({ message: "Already logged out" });
   }
-  isAuth = false;
-  client.logout();
-  res.status(200).send({ message: "Logged out" });
 });
 
 app.get("/status", (req, res) => {
-  try {
-    fs.readFile("session.json", (err, session) => {
-      if (err) {
-        console.log(err);
-      }
-      if (session) {
-        res.status(200).json({ success: true, message: "authenticated" });
-      } else {
-        res.status(401).json({ success: false, message: "disconnected" });
-      }
-    });
-  } catch (ENOENT) {
-    res.status(200).json({ message: "there is no active session" });
+  if (isAuth) {
+    res.status(200).json({ success: true, message: "authenticated" });
+  } else {
+    res.status(401).json({ success: false, message: "disconnected" });
   }
 });
 
 app.get("/send_message", async (req, res) => {
   const { number, message } = req.query;
-  console.log(req.query);
+
   if (!number) {
     return res.status(400).send({ message: "number is required" });
   }
