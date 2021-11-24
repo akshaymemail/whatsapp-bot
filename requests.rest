@@ -2,7 +2,7 @@ POST http://localhost:2000/send_image
 Content-Type: application/json
 
 {
-    "phone" : "917065044494",
+    "phone" : "918271097843",
     "image": "https://i.imgur.com/XyqQY.jpg",
     "caption" : "this is a capiton"
 }
