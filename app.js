@@ -4,12 +4,14 @@ const { Client, MessageMedia } = require("whatsapp-web.js");
 const fs = require("fs");
 const { mediadownloader, getFinalNumber } = require("./helpers/helpers");
 const vuri = require("valid-url");
+const { Axios } = require("./configs/axios");
+const { default: axios } = require("axios");
 
 // EXPRESS APP
 const app = express();
 
 // MIDDLEWARES
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
 app.use(cors());
 
 // CONSTANTS
@@ -47,11 +49,33 @@ client.on("ready", () => {
   console.log("client is ready");
 });
 
+client.on("message", (message) => {
+  // Downloading media
+  console.log("message", message);
+  if (message.hasMedia) {
+    message.downloadMedia().then((media) => {
+      console.log(media);
+      if (media) {
+        // incomming message is a type of media
+      }
+    });
+  } else {
+    // imcomming message is a type of text
+  }
+});
+
 client.on("auth_failure", () => {
   console.log("AUTH Failed !");
 });
 
-client.initialize();
+client
+  .initialize()
+  .then(() => {
+    console.log("Client Initialized");
+  })
+  .catch((err) => {
+    console.log("where was an error", err);
+  });
 
 // HOME ROUTE
 app.get("/", (req, res) => {
@@ -192,6 +216,14 @@ app.post("/send_image", async (req, res) => {
                 });
                 fs.unlinkSync(path);
               }
+            })
+            .catch((err) => {
+              console.log(err);
+              res.status(400).json({
+                success: false,
+                message:
+                  "There was an error while sending message, please contact your service admin."
+              });
             });
         });
       } else {
@@ -268,6 +300,17 @@ app.post("/send_pdf/", async (req, res) => {
       });
     }
   }
+});
+
+app.get("/get_contacts", (req, res) => {
+  client
+    .getContacts()
+    .then((contacts) => {
+      res.status(200).json({ success: true, contacts });
+    })
+    .catch((err) => {
+      res.status(400).json({ success: false, message: err });
+    });
 });
 
 // SPINNING THE SERVER

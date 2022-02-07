@@ -1,18 +1,25 @@
-# POST http://localhost:2000/send_image
+# POST http://164.52.207.204:2471/send_image
 # Content-Type: application/json
 
 # {
 #     "phone" : "918271097843",
-#     "image": "https://i.imgur.com/XyqQY.jpg",
+#     "image": "https://images3.alphacoders.com/823/thumb-1920-82317.jpg",
 #     "caption" : "this is a capiton"
 # }
 
 
-POST http://localhost:2000/send_pdf
+# POST http://164.52.207.204:2471/send_pdf
+# Content-Type: application/json
+
+# {
+#     "phone" : "917065044494",
+#     "pdf": "https://research.nhm.org/pdfs/10840/10840-001.pdf"
+    
+# }
+
+POST http://164.52.207.204:3167/save_instance
 Content-Type: application/json
 
 {
-    "phone" : "917065044494",
-    "pdf": "http://www.africau.edu/images/default/sample.pdf"
-    
+    "instance": "32993"
 }
