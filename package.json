@@ -18,6 +18,6 @@
     "express": "^4.17.1",
     "request": "^2.88.2",
     "valid-url": "^1.0.9",
-    "whatsapp-web.js": "^1.15.3"
+    "whatsapp-web.js": "^1.15.5"
   }
 }
