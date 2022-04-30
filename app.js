@@ -4,8 +4,7 @@ const { Client, MessageMedia } = require("whatsapp-web.js");
 const fs = require("fs");
 const { mediadownloader, getFinalNumber } = require("./helpers/helpers");
 const vuri = require("valid-url");
-const { Axios } = require("./configs/axios");
-const { default: axios } = require("axios");
+const qr = require("qrcode");
 
 // EXPRESS APP
 const app = express();
@@ -90,15 +89,18 @@ app.get("/getqr", (req, res) => {
       fs.readFile("qrcode.js", (err, qrjs) => {
         fs.readFile("recentqr.txt", (err, data) => {
           if (err) console.log(err);
-          res.status(200).send(`<html>
+          qr.toDataURL(data.toString(), (err, src) => {
+            if (err) return res.status(500).json({ error: err });
+            // Let us return the QR code image as our response and set it to be the source used in the webpage
+            res.status(200).send(`<html>
               <body>
-              <script>${qrjs}</script>
+              
               <div id="qrcode"></div>
-              <script type="text/javascript">
-                  new QRCode(document.getElementById("qrcode"), "${data}");
-              </script>
+              <img src="${src}" alt="qrcode" />
+              
               </body>
           </html>`);
+          });
         });
       });
     } catch (error) {

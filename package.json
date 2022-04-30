@@ -16,8 +16,9 @@
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "qrcode": "^1.5.0",
     "request": "^2.88.2",
     "valid-url": "^1.0.9",
-    "whatsapp-web.js": "^1.15.5"
+    "whatsapp-web.js": "^1.16.6"
   }
 }
