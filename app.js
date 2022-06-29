@@ -171,8 +171,7 @@ app.get("/send_message", async (req, res) => {
 
 // send image
 app.post("/send_image", async (req, res) => {
-  var base64regex =
-    /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+  var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
 
   const { phone, image, caption } = req.body;
 
@@ -246,8 +245,7 @@ app.post("/send_image", async (req, res) => {
 // send pdf
 
 app.post("/send_pdf/", async (req, res) => {
-  var base64regex =
-    /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
+  var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
 
   const { phone, pdf } = req.body;
 
@@ -311,6 +309,7 @@ app.get("/get_contacts", (req, res) => {
       res.status(200).json({ success: true, contacts });
     })
     .catch((err) => {
+      console.log(err);
       res.status(400).json({ success: false, message: err });
     });
 });
